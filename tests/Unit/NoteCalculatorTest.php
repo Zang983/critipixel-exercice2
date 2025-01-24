@@ -7,6 +7,7 @@ use App\Model\Entity\Review;
 use App\Model\Entity\VideoGame;
 use App\Rating\RatingHandler;
 use PHPUnit\Framework\TestCase;
+use Random\RandomException;
 
 class CountRatingTest extends TestCase
 {
@@ -19,9 +20,13 @@ class CountRatingTest extends TestCase
     {
         $RatingHandler = new RatingHandler();
         $RatingHandler->countRatingsPerValue($videoGame);
-        $this->assertEquals($videoGame->getNumberOfRatingsPerValue(), $expectedResult);
+        self::assertEquals($videoGame->getNumberOfRatingsPerValue(), $expectedResult);
     }
 
+    /**
+     * @return array<string, array{0: VideoGame,1:NumberOfRatingPerValue}>
+     * @throws RandomException
+     */
     public static function provideVideoGame(): array
     {
         $numberOfReviews = random_int(5, 30);
@@ -33,12 +38,16 @@ class CountRatingTest extends TestCase
         return [
             'Without reviews' => [new VideoGame(), self::createExpectedRatingPerValue([])],
             'With one review' => [self::createVideoGame([4]), self::createExpectedRatingPerValue([4])],
-            'With many random reviews'=> [self::createVideoGame($rates), self::createExpectedRatingPerValue($rates)],
+            'With many random reviews' => [self::createVideoGame($rates), self::createExpectedRatingPerValue($rates)],
             'With many controlled reviews' => [self::createVideoGame([1, 2, 3, 4, 5]), self::createExpectedRatingPerValue([1, 2, 3, 4, 5])],
             'With all reviews with the same rating' => [self::createVideoGame(array_fill(0, $numberOfReviews, 3)), self::createExpectedRatingPerValue(array_fill(0, $numberOfReviews, 3))],
         ];
     }
 
+    /**
+     * @param array<int> $reviews
+     * @return VideoGame
+     */
     private static function createVideoGame(array $reviews): VideoGame
     {
         $videoGame = new VideoGame();
@@ -50,11 +59,14 @@ class CountRatingTest extends TestCase
         return $videoGame;
     }
 
+    /**
+     * @param array<int> $rates
+     * @return NumberOfRatingPerValue
+     */
     private static function createExpectedRatingPerValue(array $rates): NumberOfRatingPerValue
     {
         $ratingPerValue = new NumberOfRatingPerValue();
-        foreach($rates as $rate)
-        {
+        foreach ($rates as $rate) {
             switch ($rate) {
                 case 1:
                     $ratingPerValue->increaseOne();

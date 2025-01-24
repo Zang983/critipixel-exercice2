@@ -7,6 +7,7 @@ use App\Model\Entity\Review;
 use App\Model\Entity\VideoGame;
 use App\Rating\RatingHandler;
 use PHPUnit\Framework\TestCase;
+use Random\RandomException;
 
 class RatingHandlerTest extends TestCase
 {
@@ -19,9 +20,13 @@ class RatingHandlerTest extends TestCase
     {
         $RatingHandler = new RatingHandler();
         $RatingHandler->calculateAverage($videoGame);
-        $this->assertEquals($expectedRating, $expectedRating);
+        self::assertEquals($expectedRating, $expectedRating);
     }
 
+    /**
+     * @throws RandomException
+     * @return array<string, array{0: VideoGame,1:int|null}>
+     */
     public static function provideVideoGame(): array
     {
         $numberOfReviews = random_int(5, 30);
@@ -41,6 +46,10 @@ class RatingHandlerTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<int> $reviews
+     * @return VideoGame
+    */
     private static function createVideoGame(array $reviews): VideoGame
     {
         $videoGame = new VideoGame();

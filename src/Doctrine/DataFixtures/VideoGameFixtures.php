@@ -55,10 +55,10 @@ final class VideoGameFixtures extends Fixture implements DependentFixtureInterfa
 
                 $videoGames[$i]->getTags()->add($tags[($i + $j) % count($tags)]);
             }
+
+
             $manager->persist($videoGames[$i]);
         }
-
-        array_walk($videoGames, [$manager, 'persist']);
 
         $manager->flush();
 
@@ -77,6 +77,7 @@ final class VideoGameFixtures extends Fixture implements DependentFixtureInterfa
                 $this->countRatingsPerValue->countRatingsPerValue($videoGames[$i]);
             }
         }
+        $manager->flush();
 
     }
 

@@ -13,7 +13,7 @@ final class TagFixtures extends Fixture
     {
         $tags = array_fill_callback(
             0,
-            25,
+            10,
             static fn (int $index): Tag => (new Tag)->setName(sprintf('Tag %d', $index))
         );
 

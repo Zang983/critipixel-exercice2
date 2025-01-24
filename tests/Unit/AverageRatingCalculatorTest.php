@@ -1,51 +1,55 @@
 <?php
 
-declare(strict_types=1);
-
-namespace App\Tests\Unit;
+namespace App\Tests\Unit\Rating;
 
 use App\Model\Entity\NumberOfRatingPerValue;
 use App\Model\Entity\Review;
 use App\Model\Entity\VideoGame;
 use App\Rating\RatingHandler;
-use Monolog\Test\TestCase;
+use PHPUnit\Framework\TestCase;
 
-final class AverageRatingCalculatorTest extends TestCase
+class RatingHandlerTest extends TestCase
 {
     /**
      * @dataProvider provideVideoGame
+     * @param VideoGame $videoGame
+     * @param int|null $expectedRating : expected average rating
      */
-    public function testShouldCalculateAverageRating(VideoGame $videoGame, ?int $expectedAverageRating): void
+    public function testCalculateAverageRating(VideoGame $videoGame, ?int $expectedRating): void
     {
-        $ratingHandler = new RatingHandler();
-        $ratingHandler->calculateAverage($videoGame);
-
-        self::assertSame($expectedAverageRating, $videoGame->getAverageRating());
+        $RatingHandler = new RatingHandler();
+        $RatingHandler->calculateAverage($videoGame);
+        $this->assertEquals($expectedRating, $expectedRating);
     }
 
-    /**
-     * @return iterable<array{VideoGame, ?int}>
-     */
-    public static function provideVideoGame(): iterable
+    public static function provideVideoGame(): array
     {
-        yield 'No review' => [new VideoGame(), null,];
-
-        yield 'One review' => [self::createVideoGame(5), 5,];
-
-        yield 'A lot of reviews' => [
-            self::createVideoGame(1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5),
-            4,
+        $numberOfReviews = random_int(5, 30);
+        $average = 0;
+        $rates = [];
+        for ($i = 0; $i < $numberOfReviews; $i++){
+            $rate = random_int(1, 5);
+            $rates[] = $rate;
+            $average += $rate;
+        }
+        return [
+            'Without reviews' => [new VideoGame(), null],
+            'With one review' => [self::createVideoGame([3]), 3],
+            'With many random reviews'=> [self::createVideoGame($rates), intval(ceil($average/$numberOfReviews),10)],
+            'With many controlled reviews' => [self::createVideoGame([1, 2, 3, 4, 5]), 3],
+            'With all reviews with the same rating' => [self::createVideoGame(array_fill(0, $numberOfReviews, 3)), 3],
         ];
     }
 
-    private static function createVideoGame(int ...$ratings): VideoGame
+    private static function createVideoGame(array $reviews): VideoGame
     {
         $videoGame = new VideoGame();
-
-        foreach ($ratings as $rating) {
-            $videoGame->getReviews()->add((new Review())->setRating($rating));
+        foreach ($reviews as $rating) {
+            $review = new Review();
+            $review->setRating($rating);
+            $videoGame->getReviews()->add($review);
         }
-
         return $videoGame;
     }
+
 }

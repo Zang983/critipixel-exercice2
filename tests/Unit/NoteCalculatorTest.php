@@ -1,88 +1,78 @@
 <?php
 
-declare(strict_types=1);
-
-namespace App\Tests\Unit;
+namespace App\Tests\Unit\Rating;
 
 use App\Model\Entity\NumberOfRatingPerValue;
 use App\Model\Entity\Review;
 use App\Model\Entity\VideoGame;
 use App\Rating\RatingHandler;
-use Monolog\Test\TestCase;
+use PHPUnit\Framework\TestCase;
 
-final class NoteCalculatorTest extends TestCase
+class CountRatingTest extends TestCase
 {
+
     /**
      * @dataProvider provideVideoGame
+     * @param VideoGame $videoGame
      */
-    public function testShouldCountRatingPerValue(VideoGame $videoGame, NumberOfRatingPerValue $expectedNumberOfRatingPerValue): void
+    public function testCountRating(VideoGame $videoGame, ?NumberOfRatingPerValue $expectedResult): void
     {
-        $ratingHandler = new RatingHandler();
-        $ratingHandler->countRatingsPerValue($videoGame);
-
-        self::assertEquals($expectedNumberOfRatingPerValue, $videoGame->getNumberOfRatingsPerValue());
+        $RatingHandler = new RatingHandler();
+        $RatingHandler->countRatingsPerValue($videoGame);
+        $this->assertEquals($videoGame->getNumberOfRatingsPerValue(), $expectedResult);
     }
 
-    /**
-     * @return iterable<array{VideoGame, NumberOfRatingPerValue}>
-     */
-    public static function provideVideoGame(): iterable
+    public static function provideVideoGame(): array
     {
-        yield 'No review' => [
-            new VideoGame(),
-            new NumberOfRatingPerValue(),
-        ];
-
-        yield 'One review' => [
-            self::createVideoGame(5),
-            self::createExpectedState(five: 1),
-        ];
-
-        yield 'A lot of reviews' => [
-            self::createVideoGame(1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5),
-            self::createExpectedState(1, 2, 3, 4, 5),
+        $numberOfReviews = random_int(5, 30);
+        $rates = [];
+        for ($i = 0; $i < $numberOfReviews; $i++) {
+            $rate = random_int(1, 5);
+            $rates[] = $rate;
+        }
+        return [
+            'Without reviews' => [new VideoGame(), self::createExpectedRatingPerValue([])],
+            'With one review' => [self::createVideoGame([4]), self::createExpectedRatingPerValue([4])],
+            'With many random reviews'=> [self::createVideoGame($rates), self::createExpectedRatingPerValue($rates)],
+            'With many controlled reviews' => [self::createVideoGame([1, 2, 3, 4, 5]), self::createExpectedRatingPerValue([1, 2, 3, 4, 5])],
+            'With all reviews with the same rating' => [self::createVideoGame(array_fill(0, $numberOfReviews, 3)), self::createExpectedRatingPerValue(array_fill(0, $numberOfReviews, 3))],
         ];
     }
 
-    private static function createVideoGame(int ...$ratings): VideoGame
+    private static function createVideoGame(array $reviews): VideoGame
     {
         $videoGame = new VideoGame();
-
-        foreach ($ratings as $rating) {
-            $videoGame->getReviews()->add((new Review())->setRating($rating));
+        foreach ($reviews as $rating) {
+            $review = new Review();
+            $review->setRating($rating);
+            $videoGame->getReviews()->add($review);
         }
-
         return $videoGame;
     }
 
-    private static function createExpectedState(int $one = 0, int $two = 0, int $three = 0, int $four = 0, int $five = 0): NumberOfRatingPerValue
+    private static function createExpectedRatingPerValue(array $rates): NumberOfRatingPerValue
     {
-        $state = new NumberOfRatingPerValue();
-
-        for ($i = 0; $i < $one; ++$i) {
-            $state->increaseOne();
+        $ratingPerValue = new NumberOfRatingPerValue();
+        foreach($rates as $rate)
+        {
+            switch ($rate) {
+                case 1:
+                    $ratingPerValue->increaseOne();
+                    break;
+                case 2:
+                    $ratingPerValue->increaseTwo();
+                    break;
+                case 3:
+                    $ratingPerValue->increaseThree();
+                    break;
+                case 4:
+                    $ratingPerValue->increaseFour();
+                    break;
+                case 5:
+                    $ratingPerValue->increaseFive();
+                    break;
+            }
         }
-
-
-        for ($i = 0; $i < $two; ++$i) {
-            $state->increaseTwo();
-        }
-
-
-        for ($i = 0; $i < $three; ++$i) {
-            $state->increaseThree();
-        }
-
-
-        for ($i = 0; $i < $four; ++$i) {
-            $state->increaseFour();
-        }
-
-
-        for ($i = 0; $i < $five; ++$i) {
-            $state->increaseFive();
-        }
-
-        return $state;
+        return $ratingPerValue;
     }
 }

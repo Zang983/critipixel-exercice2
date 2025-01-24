@@ -92,6 +92,9 @@
     "stan": [
         "symfony php vendor/bin/phpstan analyse"
     ],
+    "unit": [
+      "symfony php bin/phpunit"
+    ],
     "qa": [
       "symfony php vendor/bin/phpstan"
     ],

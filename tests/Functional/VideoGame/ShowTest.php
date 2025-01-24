@@ -23,6 +23,12 @@ final class ShowTest extends FunctionalTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('h1', 'Jeu vidéo 0');
     }
+    public function testShouldPostReviewWithoutLogin(): void
+    {
+        $this->client->request('POST', '/jeu-video-49', ['content' => 'Super jeu!!!', 'rating' => 5]);
+        self::assertResponseIsSuccessful();
+        self::assertAnySelectorTextNotContains('div.d-flex.flex-column.gap-2.w-100.justify-content-start p.m-0', 'Super jeu!!!');
+    }
 
     public function testShouldPostReviewWhenLogged(): void
     {
@@ -39,14 +45,5 @@ final class ShowTest extends FunctionalTestCase
         self::assertSelectorTextContains('div.list-group-item:last-child p', 'Super jeu !');
         self::assertSelectorTextContains('div.list-group-item:last-child span.value', '5');
 
-    }
-
-    public function testShouldPostReviewWithoutLogin(): void
-    {
-        $this->client->request('POST', '/jeu-video-49', ['content' => 'Super jeu !', 'rating' => 5]);
-//
-//        self::assertResponseRedirects('/auth/login');
-//        $this->client->followRedirect();
-//        self::assertSelectorTextContains('h1', 'Connectez-vous !');
     }
 }

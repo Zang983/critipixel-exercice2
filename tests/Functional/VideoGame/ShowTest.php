@@ -4,16 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\VideoGame;
 
-use App\List\VideoGameList\Filter;
-use App\List\VideoGameList\Pagination;
-use App\Model\Entity\Tag;
-use App\Model\Entity\VideoGame;
 use App\Tests\Functional\FunctionalTestCase;
-use App\Model\ValueObject\Sorting;
-use App\Model\ValueObject\Direction;
-use Doctrine\ORM\Tools\Pagination\Paginator;
-use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\HttpFoundation\Response;
 
 final class ShowTest extends FunctionalTestCase
 {

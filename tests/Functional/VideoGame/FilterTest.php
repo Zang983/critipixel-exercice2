@@ -31,6 +31,16 @@ final class FilterTest extends FunctionalTestCase
     /* Fin du code déjà présent */
 
     /**
+     * @param array{
+     *     page: int,
+     *     limit: int,
+     *     count: int,
+     *     sort: string,
+     *     direction: string,
+     *     filter: array<string, mixed>
+     * } $queryParams
+     * @param string $resultSentenceExpected
+     * @param array<string> $expectedTitles
      * @dataProvider tagsListProvider
      */
     public function testShouldFilteredVideoGamesByTags(array $queryParams, string $resultSentenceExpected, array $expectedTitles): void
@@ -47,6 +57,12 @@ final class FilterTest extends FunctionalTestCase
         }
 
     }
+
+    /**
+     * @uses testShouldFilteredVideoGamesByTags
+     * @return array<string, array{array<string, mixed>, string, array<string>}>
+     *
+     */
 
     private function tagsListProvider(): array
     {
@@ -94,8 +110,15 @@ final class FilterTest extends FunctionalTestCase
 
     /**
      * @param int $page : The current page
-     * @param array $filter : Tags list and search string
-     * @return array
+     * @param array<string,mixed> $filter : Tags list and search string
+     * @return array{
+     *      page: int,
+     *      limit: int,
+     *      count: int,
+     *      sort: string,
+     *      direction: string,
+     *      filter: array<string, mixed>
+     * }
      */
     private function createQueryParams(int $page, array $filter): array
     {
@@ -108,7 +131,6 @@ final class FilterTest extends FunctionalTestCase
             'filter' => $filter
         ];
     }
-
 
 
 }

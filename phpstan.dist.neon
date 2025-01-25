@@ -21,5 +21,3 @@ parameters:
         - config/
         - src/
         - tests/
-    ignoreErrors:
-        - '#Method App\\Tests\\Functional\\VideoGame\\FilterTest::tagsListProvider\(\) is unused#'
